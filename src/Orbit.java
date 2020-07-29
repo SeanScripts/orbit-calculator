@@ -106,8 +106,9 @@ public class Orbit {
 		return 2*Math.PI*Math.sqrt(a*a*a/(G*(M()+m())));
 	}
 	
-	public double[] getPositionAtTime(double t) {
-		double[] pos = {0.0, 0.0, 0.0};
+	public Point3D<Double> getPositionAtTime(double t) {
+		Point3D<Double> pos = Point3D.ORIGIN;
+		//double[] pos = {0.0, 0.0, 0.0};
 		double T = getPeriod();
 		double mean_anomaly = 2*Math.PI*t/T + p; //equal to the phase angle at time 0, and otherwise increases by 2pi each orbit at a constant rate
 		// Calculate eccentric anomaly E, with mean anomaly M = E - e sin E
@@ -125,33 +126,42 @@ public class Orbit {
 		// P and Q give a coordinate system in the plane of the orbit, with P pointing toward periapsis
 		double P = a * (Math.cos(ecc_anomaly) - e);
 		double Q = a * Math.sin(ecc_anomaly) * Math.sqrt(1 - e*e);
+		Point3D<Double> PQ0 = new Point3D<Double>(P, Q, 0.0);
 		// Apply rotations to get this into a 3D coordinate system
-		pos[0] = Math.cos(w)*P - Math.sin(w)*Q;
-		pos[1] = Math.sin(w)*P + Math.cos(w)*Q;
-		pos[2] = Math.sin(i)*pos[1];
-		pos[1] = Math.cos(i)*pos[1]; //TODO: This seems wrong.
-		double tmp = pos[0];
-		pos[0] = Math.cos(W)*tmp - Math.sin(W)*pos[1];
-		pos[1] = Math.sin(W)*tmp + Math.cos(W)*pos[1]; // TODO: Again, this seems wrong.
+		pos = PQ0.rotateXY(w);
+		//pos[0] = Math.cos(w)*P - Math.sin(w)*Q;
+		//pos[1] = Math.sin(w)*P + Math.cos(w)*Q;
+		pos = pos.rotateYZ(i);
+		//pos[2] = Math.sin(i)*pos[1];
+		//pos[1] = Math.cos(i)*pos[1]; //TODO: This seems wrong.
+		pos = pos.rotateXY(W);
+		//double tmp = pos[0];
+		//pos[0] = Math.cos(W)*tmp - Math.sin(W)*pos[1];
+		//pos[1] = Math.sin(W)*tmp + Math.cos(W)*pos[1]; // TODO: Again, this seems wrong.
 		return pos;
 	}
 	
-	public double[] getAxisAtTime(double t) {
+	public Point3D<Double> getAxisAtTime(double t) {
 		// Start with the normal axial tilt
-		double[] axis = {Math.sin(at), 0.0, Math.cos(at)};
+		Point3D<Double> axis = new Point3D<Double>(Math.sin(at), 0.0, Math.cos(at));
+		//double[] axis = {Math.sin(at), 0.0, Math.cos(at)};
 		// Rotate in xy to account for the tilt phase
-		axis[1] = Math.sin(tp)*axis[0];
-		axis[0] = Math.cos(tp)*axis[0];
+		axis = axis.rotateXY(tp);
+		//axis[1] = Math.sin(tp)*axis[0];
+		//axis[0] = Math.cos(tp)*axis[0];
 		// Then apply rotations to account for the orientation of the orbit
-		double tmp = axis[0];
-		axis[0] = Math.cos(w)*tmp - Math.sin(w)*axis[1];
-		axis[1] = Math.sin(w)*tmp + Math.cos(w)*axis[1];
-		tmp = axis[1];
-		axis[1] = Math.cos(i)*tmp - Math.sin(i)*axis[2];
-		axis[2] = Math.sin(i)*tmp + Math.cos(i)*axis[2];
-		tmp = axis[0];
-		axis[0] = Math.cos(W)*tmp - Math.sin(W)*axis[1];
-		axis[1] = Math.sin(W)*tmp + Math.cos(W)*axis[1];
+		axis = axis.rotateXY(w);
+		//double tmp = axis[0];
+		//axis[0] = Math.cos(w)*tmp - Math.sin(w)*axis[1];
+		//axis[1] = Math.sin(w)*tmp + Math.cos(w)*axis[1];
+		axis = axis.rotateYZ(i);
+		//tmp = axis[1];
+		//axis[1] = Math.cos(i)*tmp - Math.sin(i)*axis[2];
+		//axis[2] = Math.sin(i)*tmp + Math.cos(i)*axis[2];
+		axis = axis.rotateXY(W);
+		//tmp = axis[0];
+		//axis[0] = Math.cos(W)*tmp - Math.sin(W)*axis[1];
+		//axis[1] = Math.sin(W)*tmp + Math.cos(W)*axis[1];
 		return axis;
 	}
 	
@@ -180,10 +190,9 @@ public class Orbit {
 		return siderealDayLength * siderealDays/solarDays;
 	}
 	
-	//Earth stellar and solar day
+	//Earth sidereal and solar day
 	//86164 s 
 	//86400 s
-	//Earth period
 	
 	// Getters and setters
 	

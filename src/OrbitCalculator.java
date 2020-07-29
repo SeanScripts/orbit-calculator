@@ -6,11 +6,12 @@ public class OrbitCalculator {
 		Orbit test = new Orbit(Earth, Sun, Math.PI*23.5/180.0, 0.0, 7.292115E-5, 0.0, 1.4959787E11, 0.01671022, 0.0, 0.0, 0.0, 0.0);
 		double period = test.getPeriod();
 		System.out.println(period);
-		double[] pos = test.getPositionAtTime(period*0.25);
-		System.out.println("x: "+pos[0]);
-		System.out.println("y: "+pos[1]);
-		System.out.println("z: "+pos[2]);
-		double dist = Math.sqrt(pos[0]*pos[0] + pos[1]*pos[1] + pos[2]*pos[2]);
+		Point3D<Double> pos = test.getPositionAtTime(period*0.25);
+		System.out.println(pos);
+		//System.out.println("x: "+pos[0]);
+		//System.out.println("y: "+pos[1]);
+		//System.out.println("z: "+pos[2]);
+		double dist = pos.dist(); //Math.sqrt(pos[0]*pos[0] + pos[1]*pos[1] + pos[2]*pos[2]);
 		System.out.println(dist);
 		double solarDayLength = test.getSolarDayLength();
 		double solarDays = test.getSolarDays();
